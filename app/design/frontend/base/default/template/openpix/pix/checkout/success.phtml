@@ -1,0 +1,160 @@
+<?php
+$orderId = Mage::getSingleton('checkout/session')->getLastOrderId();
+$order = Mage::getModel('sales/order')->load($orderId);
+$payment = $order->getPayment();
+if ($orderId && $payment->getMethod() === 'openpix_pix') {
+    ?>
+    <div class="buttons-set">
+        <?php
+        $qrCodeImage = $order->getData("openpix_qrcodeimage");
+        $brCode = $order->getData("openpix_brcode");
+        ?>
+        <style>
+            .openpix-content {
+                margin: 0 auto;
+                max-width: 50em;
+            }
+
+            .openpix-text-align-center {
+                text-align: center;
+            }
+
+            .openpix-container {
+                display: flex;
+                flex-wrap: wrap;
+                justify-contente: center;
+            }
+
+            .openpix-qrcode-container {
+                flex: 1 1 250px;
+                display: flex;
+                margin: 0 2em;
+            }
+
+            .openpix-qrcode-image {
+                height: auto;
+                max-width: 100%;
+                display: block;
+                border-radius: 3px;
+            }
+
+            .openpix-instructions {
+                flex-direction: column;
+                justify-content: center;
+                display: flex;
+                flex: 1 1 250px;
+            }
+
+            .openpix-copy-paste-container {
+                display: flex;
+                flex-direction: column;
+                cursor: pointer;
+            }
+
+            .openpix-copy-button {
+                border: unset;
+                display: inline-block;
+                padding: 0.25em 0.4em;
+                font-size: 75%;
+                font-weight: 700;
+                line-height: 1;
+                text-align: center;
+                white-space: nowrap;
+                vertical-align: baseline;
+                border-radius: 0.25rem;
+                transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+                border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+                color: #fff;
+                background-color: #17a2b8;
+                text-transform: uppercase;
+            }
+
+            .openpix-textarea-container {
+                background-color: #e2e3e5;
+                border: 1px solid #dee2e6 !important;
+                padding: 0.75rem 1.25rem;
+                margin-bottom: 1rem;
+                border-radius: 0.25rem;
+            }
+
+            .openpix-copy-textarea {
+                color: #333;
+                width: 100%;
+                background: 0 0;
+                border: none;
+                overflow: hidden;
+                pointer-events: none;
+            }
+        </style>
+        <div class="openpix-content">
+            <p class="openpix-text-align-center">
+                Efetue o pagamento Pix usando o
+                <string>QRCode</string>
+                ou usando
+                <strong>Pix copia e cola</strong>, se preferir:
+            </p>
+
+            <div class="openpix-container">
+                <div class="openpix-qrcode-container">
+                    <img
+                            class="openpix-qrcode-image"
+                            title="QRCode Pix deste pedido."
+                            src="<?php echo $qrCodeImage; ?>"
+                            width="400px"
+                    />
+                </div>
+                <div class="openpix-instructions">
+                    <ul>
+                        <li>
+              <span>
+                Abra o app do seu banco ou instituição financeira e
+                <strong>entre no ambiente Pix</strong>.
+              </span>
+                        </li>
+                        <li>
+              <span>
+                Escolha a opção <strong>Pagar com QR Code</strong> e escaneie o
+                código ao lado.
+              </span>
+                        </li>
+                        <li>
+                            <span>Confirme as informações e finalize o pagamento.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="openpix-copy-paste-container">
+                <p class="openpix-text-align-center">
+                    Pagar com Pix copia e cola
+                    <button id="btnCopyEmv" class="openpix-copy-button" onclick="copyEmv()">Copiar</button>
+                </p>
+                <div class="openpix-textarea-container">
+                    <textarea id="emv" readonly="" rows="3" class="openpix-copy-textarea"><?php echo $brCode; ?></textarea>
+                </div>
+            </div>
+            <p class="openpix-text-align-center">
+                Após o pagamento, podemos levar alguns segundos para confirmar o seu
+                pagamento.<br/>Você será avisado assim que isso ocorrer!
+            </p>
+        </div>
+    </div>
+    <script>
+        function copyEmv() {
+            const textAreaEmv = document.querySelector('#emv');
+
+            textAreaEmv.select();
+            textAreaEmv.setSelectionRange(0, 99999);
+            document.execCommand('copy');
+
+            const originalText = btnCopyEmv.innerHTML;
+            btnCopyEmv.innerHTML = 'Copiado!';
+
+            setTimeout(function () {
+                btnCopyEmv.innerHTML = originalText;
+            }, 10 * 1000);
+        }
+    </script>
+    <?php
+}
+?>
